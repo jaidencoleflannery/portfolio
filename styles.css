@@ -174,13 +174,25 @@ main>*{
   to{opacity:1;transform:translateY(0)}
 }
 
-@media(max-width:1200px){
-  :root{--title-size:3rem}
-}
-
-@media(max-width:768px){
+@media(max-width:1600px){
   :root{--text-size:var(--mobile-size)}
-  main{grid-template-columns:1fr}
+
+  .overlay {
+    display: none;
+    background-color: pink;
+  }
+
+  .navbar-container {
+    padding-top: 2rem;
+    padding-left: 2rem;
+  }
+
+  main {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 2rem 1.5rem;
+    width: 100%;
+  }
 }
 
 @media(prefers-reduced-motion:reduce){
