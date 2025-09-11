@@ -1,10 +1,15 @@
 :root {
   --font-family: "Bytesized", sans-serif;
   --font-weight: 100;
-  --text-size: 2rem;
+  --text-size: 1.6rem;
   --font-style: normal;
   --fg-color: #343a40;
   --bg-color: #ffffff;
+}
+
+@font-face {
+  font-family: "BerkeleyMono";
+  src: url("./resources/BerkeleyMono-Regular.otf");
 }
 
 *,*::before,*::after{
@@ -12,6 +17,7 @@
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
+  font-family: "BerkeleyMono";
 }
 
 html{
