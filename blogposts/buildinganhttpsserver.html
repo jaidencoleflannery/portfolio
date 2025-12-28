@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+	<title>BUILDING AN HTTPS SERVER</title>
+        <link rel="stylesheet" href="../styles.css">
+        <link rel="icon" href="../img/favicon.ico" type="image/x-icon">
+        <link rel="shortcut icon" href="../img/favicon.ico" type="image/x-icon">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Bytesized&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap" rel="stylesheet">
+    </head>
+
+    <body>
+
+        <main>
+            <div class="spacer"></div>
+	    <div class="spacer"></div> 
+            <container class="blogpost">
+	   	<span style="font-weight: 900;">
+			BUILDING AN HTTPS SERVER (IN DOTNET)
+		</span>
+		<br>
+	    	<span>
+			Checkout this project on <a href="https://github.com/jaidencoleflannery/httpwebserver" style="color: blue;">Github</a>.
+		</span>
+		<div class="spacer"></div>
+		<div class="spacer"></div>
+                <span>
+			I am a strong believer that, to truly understand something, you have to build it yourself,
+			and after working with .NET’s Web API framework for a while, I started to wonder: what is really going on here?
+			So, out of pure curiosity (and perhaps my own vanity),
+			I decided to build my own web server from scratch - starting with simple intranet HTTP communication.
+                </span>
+                <br>
+                <span>
+			To start, let’s touch on how a basic web server functions:
+			It all starts with TCP (Transmission Control Protocol), which delivers an ordered, error-checked stream of bytes over an IP network.
+			Newer versions of HTTP now rely on a newer protocol, QUIC, but we only need to concern ourselves with the abstraction for now.
+			Built on top of TCP is HTTP (HyperText Transfer Protocol), which is a client-server model for user-to-server interaction (mostly the retrieval of and interaction with data the server provides, but it can also be used for machine-to-machine or peer-to-peer communication).
+			HTTP provides an access layer with GET, POST, PUT, PATCH, and DELETE at our disposal.
+			An easier way to think of it is that HTTP is a ruleset for the client and recipient to follow; by following the rules you guarantee a universal communication standard and do not have to worry about what structure the server - or client - expects in return.
+		</span>
+		<br>
+		<span>
+			So… how do we build a server for HTTP communication?
+			We begin by creating a socket with our OS, telling it to listen for traffic on a specific IP/port 
+			(the prefix, which is scheme + host + optional port + optional path ending), and to give us the data it receives.
+			From there, we parse the bytes and run handlers to do something with that data, such as respond with an HTML file or simply return informational data like “The server is running!”.
+			Luckily for us, .NET comes with an HttpListener class we can use to abstract past the HTTP-structure level and focus on server logic 
+			(although, in the near future, we will be re-implementing this class ourselves so that we can handle different connection types - such as UDP - and create a more efficient system).
+		</span>
+		<br>
+		<span>
+			(Quick note: all of the following functions live in a single namespace for modularity. That lets us abstract what should be returned in our server logic and later swap out HttpListener for a socket-based connection handler.)
+		</span>
+            </container>
+            <div class="spacer"></div>
+        </main>
+
+    </body>
+
+</html>

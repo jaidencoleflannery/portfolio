@@ -1,7 +1,7 @@
 :root {
   --font-family: "Bytesized", sans-serif;
   --font-weight: 100;
-  --text-size: 1.6rem;
+  --text-size: 1.2rem;
   --font-style: normal;
   --fg-color: #343a40;
   --bg-color: #ffffff;
@@ -28,16 +28,18 @@ html{
 body{
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin:0;
+  justify-content: flex-start;
   font:var(--text-size) var(--font-family);
   font-weight:var(--font-weight);
   color:var(--fg-color);
   background:var(--bg-color);
   transition:background var(--speed),color var(--speed);
-  overflow: hidden;
-  cursor: pointer;
+  overflow: auto;
+  padding: 2rem;
+  max-width: 50rem;
+  width: 90%;
+  overflow-wrap: break-word; /* modern */
+  word-wrap: break-word;     /* legacy */
 }
 
 a{
@@ -59,4 +61,16 @@ a::after.no-anim{
 
 .spacer {
   min-height: 8rem;
+}
+
+.blogpost {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  max-width: 50rem;
+  width: 90%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overflow-wrap: break-word; /* modern */
+  word-wrap: break-word;     /* legacy */
 }
