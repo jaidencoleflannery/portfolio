@@ -3,7 +3,7 @@
 
     <head>
         <meta charset="UTF-8">
-	<title>BUILDING AN HTTPS SERVER</title>
+		<title>BUILDING AN HTTPS SERVER</title>
         <link rel="stylesheet" href="../styles.css">
         <link rel="icon" href="../img/favicon.ico" type="image/x-icon">
         <link rel="shortcut icon" href="../img/favicon.ico" type="image/x-icon">
@@ -16,46 +16,315 @@
 
         <main>
             <div class="spacer"></div>
-	    <div class="spacer"></div> 
-            <container class="blogpost">
-	   	<span style="font-weight: 900;">
-			BUILDING AN HTTPS SERVER (IN DOTNET)
-		</span>
-		<br>
-	    	<span>
-			Checkout this project on <a href="https://github.com/jaidencoleflannery/httpwebserver" style="color: blue;">Github</a>.
-		</span>
-		<div class="spacer"></div>
-		<div class="spacer"></div>
-                <span>
-			I am a strong believer that, to truly understand something, you have to build it yourself,
-			and after working with .NET’s Web API framework for a while, I started to wonder: what is really going on here?
-			So, out of pure curiosity (and perhaps my own vanity),
-			I decided to build my own web server from scratch - starting with simple intranet HTTP communication.
-                </span>
-                <br>
-                <span>
-			To start, let’s touch on how a basic web server functions:
-			It all starts with TCP (Transmission Control Protocol), which delivers an ordered, error-checked stream of bytes over an IP network.
-			Newer versions of HTTP now rely on a newer protocol, QUIC, but we only need to concern ourselves with the abstraction for now.
-			Built on top of TCP is HTTP (HyperText Transfer Protocol), which is a client-server model for user-to-server interaction (mostly the retrieval of and interaction with data the server provides, but it can also be used for machine-to-machine or peer-to-peer communication).
-			HTTP provides an access layer with GET, POST, PUT, PATCH, and DELETE at our disposal.
-			An easier way to think of it is that HTTP is a ruleset for the client and recipient to follow; by following the rules you guarantee a universal communication standard and do not have to worry about what structure the server - or client - expects in return.
-		</span>
-		<br>
-		<span>
-			So… how do we build a server for HTTP communication?
-			We begin by creating a socket with our OS, telling it to listen for traffic on a specific IP/port 
-			(the prefix, which is scheme + host + optional port + optional path ending), and to give us the data it receives.
-			From there, we parse the bytes and run handlers to do something with that data, such as respond with an HTML file or simply return informational data like “The server is running!”.
-			Luckily for us, .NET comes with an HttpListener class we can use to abstract past the HTTP-structure level and focus on server logic 
-			(although, in the near future, we will be re-implementing this class ourselves so that we can handle different connection types - such as UDP - and create a more efficient system).
-		</span>
-		<br>
-		<span>
-			(Quick note: all of the following functions live in a single namespace for modularity. That lets us abstract what should be returned in our server logic and later swap out HttpListener for a socket-based connection handler.)
-		</span>
-            </container>
+			<container class="blogpost">
+				<span style="font-weight: 900;">
+					BUILDING AN HTTPS SERVER (IN DOTNET)
+				</span>
+				<br>
+				<span>
+					Checkout this project on <a href="https://github.com/jaidencoleflannery/httpwebserver" style="color: blue; cursor: pointer;">Github</a>.
+				</span>	
+				<div class="spacer"></div>
+				<div class="spacer"></div>
+				<span style="font-weight: 900;">
+					&#8623;
+				</span>
+				<br>
+				<span>
+					I am a strong believer that, to truly understand something, you have to build it yourself,
+					and after working with .NET’s Web API framework for a while, I started to wonder: what is really going on here?
+					So, out of pure curiosity (and perhaps my own vanity),
+					I decided to build my own web server from scratch - starting with simple intranet HTTP communication.
+				</span>
+				<br>
+				<span>
+					To start, let’s touch on how a basic web server functions:
+					It all starts with TCP (Transmission Control Protocol), which delivers an ordered, error-checked stream of bytes over an IP network.
+					Newer versions of HTTP now rely on a newer protocol, QUIC, but we only need to concern ourselves with the abstraction for now.
+					Built on top of TCP is HTTP (HyperText Transfer Protocol), which is a client-server model for user-to-server interaction (mostly the retrieval of and interaction with data the server provides, but it can also be used for machine-to-machine or peer-to-peer communication).
+					HTTP provides an access layer with GET, POST, PUT, PATCH, and DELETE at our disposal.
+					An easier way to think of it is that HTTP is a ruleset for the client and recipient to follow; by following the rules you guarantee a universal communication standard and do not have to worry about what structure the server - or client - expects in return.
+				</span>
+				<br>
+				<span>
+					So… how do we build a server for HTTP communication?
+					We begin by creating a socket with our OS, telling it to listen for traffic on a specific IP/port 
+					(the prefix, which is scheme + host + optional port + optional path ending), and to give us the data it receives.
+					From there, we parse the bytes and run handlers to do something with that data, such as respond with an HTML file or simply return informational data like “The server is running!”.
+					Luckily for us, .NET comes with an HttpListener class we can use to abstract past the HTTP-structure level and focus on server logic 
+					(although, in the near future, we will be re-implementing this class ourselves so that we can handle different connection types - such as UDP - and create a more efficient system).
+				</span>
+				<br>
+				<span>
+					(Quick note: all of the following functions live in a single namespace for modularity. That lets us abstract what should be returned in our server logic and later swap out HttpListener for a socket-based connection handler.)
+				</span> 
+				<span>
+					To begin, we need to understand what IP addresses exist on our current network so we can “listen” to them. To do this, we can use .NET’s Dns class to resolve our intranet IPs:
+				</span>
+				<br>
+				<br>
+				<div class="code-block">
+					<code>
+						private static List&lt;IPAddress&gt; GetLocalAddresses() {
+						<br>
+						&nbsp;&nbsp; IPHostEntry host;
+						<br>
+						&nbsp;&nbsp; host = Dns.GetHostEntry(Dns.GetHostName());
+						<br>
+						&nbsp;&nbsp; List&lt;IPAddress&gt; localAddresses = host.AddressList.Where(ip => ip.AddressFamily ==
+						<br>
+						&nbsp;&nbsp; AddressFamily.InterNetwork).ToList();
+						<br>
+						&nbsp;&nbsp;Console.WriteLine(" > Local Addresses:");
+						<br>
+						&nbsp;&nbsp;foreach (var ip in localAddresses) {
+						<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($" [ {ip} ]");
+						<br>
+						&nbsp;&nbsp;}
+						<br>
+						&nbsp;&nbsp;Console.WriteLine($"\n");
+						<br>
+						&nbsp;&nbsp;return localAddresses;
+						<br>
+						}
+						<br>
+					</code>
+				</div>
+				<br>
+				<br>
+				<span>
+					Here, we instantiate an object called host and call Dns.GetHostEntry, which returns an IPHostEntry object containing our local intranet information.
+					We filter this list for IPv4 addresses specifically, since most standard local networks use IPv4 and we know all communication will be routed out of IPv4 addresses.
+					We then log this to the console and return the list of local addresses we just found.
+				</span>
+				<br>
+				<span>
+					I also added a domain-resolver function so we can grab external IPs, but we will not be using it for now - though I’m noting it here in case you’re curious:
+				</span>
+				<br>
+				<br>
+				<div class="code-block">
+					<code>
+						private static async Task&lt;List&lt;IPAddress&gt;&gt;> ResolveAddressAsync() {
+						<br>
+						&nbsp;&nbsp;var ext = await Dns.GetHostAddressesAsync("google.com");
+						<br>
+						&nbsp;&nbsp;var externalAddresses = ext.Where(ip => ip.AddressFamily == AddressFamily.InterNetwork).ToList();
+						<br>
+						&nbsp;&nbsp;Console.WriteLine("\nRequested Addresses: ");
+						<br>
+						&nbsp;&nbsp;foreach (var ip in externalAddresses) {
+						<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($" : {ip}");
+						<br>
+						&nbsp;&nbsp;}
+						<br>
+						&nbsp;&nbsp;return externalAddresses;
+						<br>
+						}
+						<br>
+					</code>
+				</div>
+				<br>
+				<br>
+				<span>
+					Now that we know what our intranet looks like, we can actually start listening!
+				</span>
+				<br>
+				<span>
+					HttpListener requires that we instantiate it as an object - so we declare it, provide the URIs we’d like it to listen to (referred to as prefixes), and simply call .Start() so the server tells the OS it’s ready to receive.
+					But we need to make sure we’re listening endlessly and that the server isn’t going to tell the OS it’s ready and then shut down.
+					I begin this cycle within a function that checks validity, instantiates the HttpListener object, and then adds a manual IP for our current machine plus the port I have chosen to use (warning: some ports are taken by default; I verified availability on my Mac with sudo lsof -i -n -P | grep TC).
+					Then we call GetLocalAddresses() and iterate over the list to append those addresses to listener.Prefixes.
+					Finally, we call listener.Start() and Task.Run on RunServer(listener).
+				</span>
+				<br>
+				<span>
+					This is where our infinite runtime comes from - RunServer never returns; it just cycles indefinitely, so our InitializeListener() task is left in limbo waiting for a response (reminds me of my dating life).
+				</span>
+				<br>
+				<br>
+				<div class="code-block">
+					<code>
+						public async static Task&lt;HttpListener&gt; InitializeListener() {
+						<br>
+						&nbsp;&nbsp;Console.WriteLine(" > Initializing Listener\n\n");
+						<br>
+						&nbsp;&nbsp;if (!HttpListener.IsSupported) {
+						<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine(" ! Cannot initialize listener on current OS.\n");
+						<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;return null;
+						<br>
+						&nbsp;&nbsp;}
+						<br>
+						&nbsp;&nbsp;HttpListener listener = new HttpListener();
+						<br>
+						&nbsp;&nbsp;listener.Prefixes.Add("http://localhost:8080/");
+						<br>
+						&nbsp;&nbsp;var localAddresses = GetLocalAddresses();
+						<br>
+						&nbsp;&nbsp;foreach (var ip in localAddresses) {
+						<br>
+						&nbsp;&nbsp;&nbsp;&nbsp;listener.Prefixes.Add("http://" + ip.ToString() + ":8080/");
+						<br>
+						&nbsp;&nbsp;}
+						<br>
+						&nbsp;&nbsp;listener.Start();
+						<br>
+						&nbsp;&nbsp;await Task.Run(() => RunServer(listener));
+						<br>
+						&nbsp;&nbsp;return null;
+						<br>
+						}
+						<br>
+					</code>
+				</div>
+				<br>
+				<br>
+				<span>
+					RunServer() then serves one purpose: endlessly running StartConnectionListener so we’re constantly checking for any hits on our prefixes and grabbing the context.
+					This may change for a better implementation in the future, but for now I’ve decided it’s fine.
+				</span>
+				<br>
+				<br>
+				<div class="code-block">
+					<code>
+						private async static Task&lt;Boolean&gt; RunServer(HttpListener listener) {
+						<br>
+						&nbsp;&nbsp;while (true) {
+						<br>
+						&nbsp;&nbsp&nbsp;&nbsp;;await StartConnectionListener(listener);
+						<br>
+						&nbsp;&nbsp;}
+						<br>
+						}
+						<br>
+						<br>
+						private async static Task StartConnectionListener(HttpListener listener) {
+						<br>
+						&nbsp;&nbsp;try {
+						<br>
+						&nbsp;&nbsp&nbsp;&nbsp;;HttpListenerContext _context = await listener.GetContextAsync();
+						<br>
+						&nbsp;&nbsp&nbsp;&nbsp;try {
+						<br>
+						&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp;;Status.Response(_context, _pool);
+						<br>
+						&nbsp;&nbsp&nbsp;&nbsp;}
+						<br>
+						&nbsp;&nbsp&nbsp;&nbsp;catch (Exception err) {
+						<br>
+						&nbsp;&nbsp&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine($" ! Error: {err}\n");
+						<br>
+						&nbsp;&nbsp&nbsp;&nbsp;} finally {
+						<br>
+						&nbsp;&nbsp&nbsp;&nbsp&nbsp;&nbsp;;_pool.Release();
+						<br>
+						&nbsp;&nbsp&nbsp;&nbsp;}
+						<br>
+						&nbsp;&nbsp;}
+						<br>
+						&nbsp;&nbsp;catch (HttpListenerException err) {
+						<br>
+						&nbsp;&nbsp&nbsp;&nbsp;;Console.WriteLine($" ! Error: {err}\n");
+						<br>
+						&nbsp;&nbsp;}
+						<br>
+						}
+					</code>
+				</div>
+				<br>
+				<br>
+				<span>
+					Here, we set _context by awaiting listener.GetContextAsync(), which will spin until the listener returns data (our port is hit), so we can then call our response function.
+					You may notice we’re calling _pool.Release() at the bottom; this is where we begin introducing multithreading so the server can handle multiple requests at once.
+					At the Listener class level, we declare:
+				</span>
+				<br>
+				<br>
+				<div class="code-block">
+					<code>
+						private const int maxConcurrentConnections = 4;
+						<br>
+						private static SemaphoreSlim _pool = new SemaphoreSlim(maxConcurrentConnections, maxConcurrentConnections);
+						<br>
+					</code>
+				</div>
+				<br>
+				<br>
+				<span>
+					We allocate four maximum threads and use a semaphore to track how many threads are in use.
+					A semaphore essentially implements a stack where each thread grabs a token from the top; if no tokens remain, the thread waits until one is returned via _pool.Release().
+					Instead of the .NET Semaphore class, we use SemaphoreSlim because it’s significantly cheaper (it doesn’t rely on the OS until it’s out of tokens) and because it lets us take advantage of .WaitAsync(), which allows us to temporarily return a token until an asynchronous job is ready to continue processing.
+					Obviously, we currently have no use for this, but it’s an easy swap we can make for our future selves.
+				</span>
+				<br>
+				<span>
+					Status exists in a separate namespace; I’ll be using it purely for checking status and interacting with our components to verify that data is being mutated properly.
+					For now it’s touch and go: we form a string that holds HTML structured content, push it into a byte array, then push that into our response alongside information about what our data looks like. Response.OutputStream.Write() handles all the actual pushing for us, and we just have to close it whenever it’s finished so we don’t hold that connection.
+				</span>
+				<br>
+				<br>
+				<div class="code-block">
+					<code>
+						<br>
+						public async static void Response(HttpListenerContext _context, SemaphoreSlim _pool) {
+						<br>
+						&nbsp;&nbsp;await _pool.WaitAsync();
+						<br>
+						&nbsp;&nbsp;string response = "&lt;html&gt;&lt;body&gt;Status: Running!&lt;/html&gt;&lt;/body&gt;";
+						<br>
+						&nbsp;&nbsp;byte[] encoded = Encoding.UTF8.GetBytes(response);
+						<br>
+						&nbsp;&nbsp;_context.Response.ContentLength64 = encoded.Length;
+						<br>
+						&nbsp;&nbsp;_context.Response.OutputStream.Write(encoded, 0, response.Length);
+						<br>
+						&nbsp;&nbsp;_context.Response.OutputStream.Close();
+						<br>
+						&nbsp;&nbsp;Console.WriteLine($" > Request [{DateTime.Now:T}] {_context.Request.HttpMethod} {_context.Request.Url}");
+						<br>
+						}
+						<br>
+					</code>
+				</div>
+				<br>
+				<br>
+				<span>
+					As you saw in StartConnectionListener(), once Response() returns - successfully or not - we free that token.
+					StartConnectionListener() finishes, and then it instantly gets spun back up by RunServer.
+				</span>
+				<br>
+				<span>
+					Now we can build our .csproj file (I wanted to build this purely from scratch, so my monkey brain wrote the .csproj by hand. I recommend everyone do this; it’s astoundingly simple and clarifies how much control you have over your projects).
+					And run! You should see something like this:
+				</span>
+				<br>
+				<br>
+				<div class="code-block">
+					<code>
+						[ Starting Local HTTP Webserver ]
+						<br>
+						> Initializing Listener
+						<br>
+						> Local Addresses:
+						<br>
+						[ 127.0.0.1 ]
+						<br>
+					</code>
+				</div>
+				<br>
+				<br>
+				<span>
+					127.0.0.1 is your localhost, which you are listening on.
+					Visit http://127.0.0.1:8080 in your browser and see your HTML loaded! Technically, we could just return “Status: Running!” directly and the browser would understand, but that’s up to your personal discretion and use case.
+				</span>
+				<br>
+				<br>
+				<span>End.</span>
+			</container>
             <div class="spacer"></div>
         </main>
 

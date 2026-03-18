@@ -5,6 +5,9 @@
   --font-style: normal;
   --fg-color: #343a40;
   --bg-color: #ffffff;
+  --code-fg-color: blue;
+  --code-bg-color: #ffffff;
+  --border-color: #eeeeee;
 }
 
 @font-face {
@@ -12,7 +15,7 @@
   src: url("./resources/BerkeleyMono-Regular.otf");
 }
 
-*,*::before,*::after{
+*,*::before,*::after {
   box-sizing:border-box;
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
@@ -20,29 +23,33 @@
   font-family: "BerkeleyMono";
 }
 
-html{
-  scroll-behavior:smooth;
-  -webkit-font-smoothing:antialiased
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased
 }
 
-body{
+main {
+  min-width: 36rem !important;
+}
+
+body {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
+  align-items: center;
   font:var(--text-size) var(--font-family);
   font-weight:var(--font-weight);
   color:var(--fg-color);
   background:var(--bg-color);
+  background: radial-gradient(circle,rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 80%, rgba(220, 220, 220, 0.4) 100%);
   transition:background var(--speed),color var(--speed);
   overflow: auto;
-  padding: 2rem;
-  max-width: 50rem;
-  width: 90%;
-  overflow-wrap: break-word; /* modern */
-  word-wrap: break-word;     /* legacy */
+  padding: 2rem; 
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
-a{
+a {
   all: unset;
   color:inherit;
   text-decoration:none;
@@ -50,8 +57,10 @@ a{
   display:inline-block;
   transition:color var(--speed)
 }
-a:hover::after,a:focus-visible::after{transform:scaleX(1)}
-a::after.no-anim{
+a:hover::after,a:focus-visible::after { 
+  transform:scaleX(1) 
+}
+a::after.no-anim {
   -webkit-transition: none !important;
   -moz-transition: none !important;
   -o-transition: none !important;
@@ -67,10 +76,42 @@ a::after.no-anim{
   display: flex;
   flex-direction: column;
   padding: 2rem;
-  max-width: 50rem;
+  max-width: 60rem;
+  width: 90%;
+  overflow: visible !important;
+  overflow-y: auto; 
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.blogpost .code-block {
+  align-self: center;
+}
+
+.home {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  max-width: 60rem;
   width: 90%;
   overflow-y: auto;
   overflow-x: hidden;
-  overflow-wrap: break-word; /* modern */
-  word-wrap: break-word;     /* legacy */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.code-block {
+  min-width: 56rem !important;
+  color: var(--code-fg-color);
+  background-color: var(--code-bg-color);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: scroll;
+  overflow-wrap: normal !important;
+  word-wrap: normal !important;
+  padding: 2.6rem;
+  border-radius: 0.8rem;
+  box-shadow: rgba(255, 255, 255, 0.05) 0px 30px 60px -8px inset, rgba(255, 255, 255, 0.05) 0px 18px 36px -8px inset;
+  border: 1px solid var(--border-color);
 }
